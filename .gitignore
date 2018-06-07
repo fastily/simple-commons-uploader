@@ -12,6 +12,3 @@ Thumbs.db
 
 # Python
 __pycache__
-
-*.txt
-*.json
