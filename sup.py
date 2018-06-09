@@ -8,7 +8,7 @@ from datetime import date, datetime
 from wiki import Wiki
 from wgen import Wgen
 
-MTC_FILE=".mtc.px.txt"
+MTC_FILE=os.path.join(os.path.expanduser("~"), ".mtc.px.txt")
 
 def listdir_fullpath(d):
     return [os.path.join(d, f) for f in os.listdir(d)]
@@ -27,7 +27,7 @@ if args.wgen:
     exit()
 
 
-wiki = Wiki("en.wikipedia.org")
+wiki = Wiki("commons.wikimedia.org")
 if args.i:
     print("Please login to continue.")
     u = input("Username: ")
@@ -78,15 +78,15 @@ for d in args.dirs:
 
     fails = []
     for f in [ fn for fn in listdir_fullpath(d) if pattern.match(fn) ]:
-        title = "{} {} {}{}".format(dir_base, str(date.today()), i, os.path.splitext(f)[1])
-        desc = tpl.format(dir_base, datetime.fromtimestamp(os.path.getmtime(f)).strftime("%Y-%m-%d %H:%M:%S"), dir_base, wiki.username)
+        title = "{} {} {}{}".format(dir_base, i, str(date.today()), os.path.splitext(f)[1])
+        desc = tpl.format(dir_base, f"{datetime.fromtimestamp(os.path.getmtime(f)):%Y-%m-%d %H:%M:%S}", dir_base, wiki.username)
         if not wiki.upload(f, title, desc, ""):
             fails.append(f)
         i+=1
 
-    if fails:
-        print("Failed to upload:")
-        for f in fails:
-            print(f)
-    else:
-        print("All done!")
+if fails:
+    print("Failed to upload:")
+    for f in fails:
+        print(f)
+else:
+    print("All done!")

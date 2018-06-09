@@ -1,13 +1,16 @@
 import requests
 import os
+import datetime
+
 
 DEFAULT_PARAMS={"format": "json", "formatversion": "2"}
 
-CHUNKSIZE = 1024 * 1024 * 1
+CHUNKSIZE = 1024 * 1024 * 4
 
 class Wiki:
     def __init__(self, domain, username=None, password=None):
         self.endpoint="https://{}/w/api.php".format(domain)
+        self.domain = domain
         self.client = requests.Session()
         self.username = username
 
@@ -28,6 +31,9 @@ class Wiki:
 
     def acceptable_file_extensions(self):
         """Gets acceptable file extensions which may be uploaded to this Wiki.  Returns a list with acceptable extensions"""
+        
+        ColorLog.info("Fetching a list of acceptable file upload extensions", self)
+
         response = self.client.get(self.endpoint, params=self.__make_params("query", {"meta": "siteinfo", "siprop": "fileextensions"}))
         return [ jo["ext"] for jo in response.json()["query"]['fileextensions'] ]
 
@@ -38,6 +44,8 @@ class Wiki:
         :param username: the username to use
         :param password: The password to use
         """
+        ColorLog.info("Try login for " + username, self)
+
         response = self.client.post(self.endpoint, params=self.__make_params("login"), data={"lgname": username, "lgpassword": password, "lgtoken": self.get_tokens()["logintoken"]})
 
         self.username = response.json()["login"]["lgusername"]
@@ -57,13 +65,13 @@ class Wiki:
         :param path: the local path to the file to upload
         :param title: The title to upload the file to, excluding "File:" namespace
         :param desc: The text of the description page
-        :summary: The edit summary to use
+        :param summary: The edit summary to use
         """
 
         fsize = os.path.getsize(path)
         total_chunks = fsize // CHUNKSIZE + 1
 
-        print("Uploading {} to {}".format(path, title))
+        ColorLog.info("Uploading " + path, self)
 
         data = DEFAULT_PARAMS.copy()
         data.update( {"filename": title, "offset": '0', "ignorewarnings": "1", "filesize": str(fsize), "token": self.csrf_token, "stash": "1"} )
@@ -73,7 +81,7 @@ class Wiki:
             chunk_count = 0
 
             while True:
-                print("Uploading chunk {} of {}".format(chunk_count + 1, total_chunks))
+                ColorLog.fyi("Uploading chunk [{} of {}] of '{}'".format(chunk_count + 1, total_chunks, path), self)
                 response = self.client.post(self.endpoint, params={"action": "upload"}, data=data, files={'chunk':(os.path.basename(path), buffer, "multipart/form-data")})
                 data['filekey'] = response.json()["upload"]["filekey"]
 
@@ -84,9 +92,60 @@ class Wiki:
                 if not buffer:
                     break
 
-        print("Unstashing {} as {}".format(data['filekey'], title))
+        ColorLog.info("Unstashing '{}' as '{}'".format(data['filekey'], title), self)
         pl = {"filename": title, "text": desc, "comment": summary, "filekey": data['filekey'], "ignorewarnings": "1", "token": self.csrf_token}
         pl.update(DEFAULT_PARAMS)
-        response = self.client.post(self.endpoint, params={"action": "upload"}, data=pl)
+        response = self.client.post(self.endpoint, params={"action": "upload"}, data=pl).json()
         
-        return response.json()['upload']['result'] == "Success"
+        if 'error' in response:
+            ColorLog.error("ERROR: " + response['error']['info'], self)
+            return False
+
+        return response['upload']['result'] == "Success"
+
+
+
+class ColorLog:
+
+    @staticmethod
+    def __log(color_code, level, msg, wiki=None):
+        """Prints out a message to std out
+            :param color_code: The ANSI color to print (1-9)
+            :param level: The level string (e.g. WARN, INFO, ERROR)
+            :param msg: the mesage to print
+            :param wiki: the Wiki to generate a prefix with (optional)
+        """
+        prefix = "[{} @ {}]: ".format(wiki.username if wiki.username != None else "<Anonymous>", wiki.domain) if wiki else ""
+        print("{}\n{}: \033[3{}m{}{}\033[0m".format(f"{datetime.datetime.now():%b %d, %Y %I:%M:%S %p}", level, color_code, prefix, msg))
+
+    @staticmethod
+    def warn(msg, wiki=None):
+        """Prints out a warning message.
+            :param msg: the mesage to print
+            :param wiki: the Wiki to generate a prefix with (optional)
+        """
+        ColorLog.__log(3, "WARN", msg, wiki)
+
+    @staticmethod
+    def info(msg, wiki=None):
+        """Prints out an info message.
+            :param msg: the mesage to print
+            :param wiki: the Wiki to generate a prefix with (optional)
+        """
+        ColorLog.__log(2, "INFO", msg, wiki)
+
+    @staticmethod
+    def error(msg, wiki=None):
+        """Prints out an error message.
+            :param msg: the mesage to print
+            :param wiki: the Wiki to generate a prefix with (optional)
+        """
+        ColorLog.__log(1, "ERROR", msg, wiki)
+
+    @staticmethod
+    def fyi(msg, wiki=None):
+        """Prints out an FYI message.
+            :param msg: the mesage to print
+            :param wiki: the Wiki to generate a prefix with (optional)
+        """
+        ColorLog.__log(6, "FYI", msg, wiki)

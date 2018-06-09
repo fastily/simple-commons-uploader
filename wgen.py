@@ -4,8 +4,13 @@ import re
 import getpass
 
 class Wgen:
+
     @staticmethod
     def load_px(px_file=".px.txt"):
+        """Loads the specified password file if it exists.  Returns a dictionary with username/passwords that were found
+        
+        :param load_px: The path to the password file
+        """
         pxd = {}
 
         pxf = os.path.join(os.path.expanduser("~"), px_file)
@@ -20,7 +25,11 @@ class Wgen:
 
     @staticmethod
     def setup(out_file=".px.txt", allow_continue=True):
-
+        """Interactively creates a password file.
+        
+        :param out_file: The path to create the password file at.  CAVEAT: If a file exists at this location exists it will be overwritten.
+        :param allow_continue: Set True to allow user to enter more than one user-pass combo.
+        """
         pxl = {}
 
         while True:
@@ -44,8 +53,10 @@ class Wgen:
             return
 
         out = ""
-        for k,v in pxl:
+        for k,v in pxl.items():
             out += "{}\t{}\n".format(k,v)
 
-        with open(os.path.join(os.path.expanduser("~"), out_file), "w") as f:
+        with open(out_file, "w") as f:
             f.write(base64.b64encode(out.encode("utf-8")).decode("utf-8"))
+
+        print("Successfully created '{}'".format(out_file))
