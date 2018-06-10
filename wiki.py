@@ -115,7 +115,7 @@ class ColorLog:
             :param msg: the mesage to print
             :param wiki: the Wiki to generate a prefix with (optional)
         """
-        prefix = "[{} @ {}]: ".format(wiki.username if wiki.username != None else "<Anonymous>", wiki.domain) if wiki else ""
+        prefix = "[{} @ {}]: ".format(wiki.username if wiki.username else "<Anonymous>", wiki.domain) if wiki else ""
         print("{}\n{}: \033[3{}m{}{}\033[0m".format(f"{datetime.datetime.now():%b %d, %Y %I:%M:%S %p}", level, color_code, prefix, msg))
 
     @staticmethod

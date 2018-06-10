@@ -5,7 +5,7 @@ import getpass
 
 from datetime import date, datetime
 
-from wiki import Wiki
+from wiki import Wiki, ColorLog
 from wgen import Wgen
 
 MTC_FILE=os.path.join(os.path.expanduser("~"), ".mtc.px.txt")
@@ -35,14 +35,14 @@ if args.i:
     wiki.login(u, p)
 elif args.user:
     if not args.pw:
-        print("ERROR: You didn't specify a password, --pw")
+        ColorLog.error("You didn't specify a password, --pw")
         exit()
 
     wiki.login(args.user, args.pw)
 elif os.path.isfile(MTC_FILE):
     pxd = Wgen.load_px(px_file=MTC_FILE)
     if not pxd:
-        print("ERROR: please run with --wgen option or remove {} from your home directory".format(MTC_FILE))
+        ColorLog.error("Please run with --wgen option or remove {} from your home directory".format(MTC_FILE))
 
     k, v = pxd.popitem()
     wiki.login(k, v)
@@ -52,7 +52,7 @@ else:
 
 
 if not args.dirs:
-    print("You didn't specify and directories to upload!  Goodbye.")
+    ColorLog.warn("You didn't specify and directories to upload!  Goodbye.")
     exit()
 
 pattern = re.compile("(?i).+\\.({})".format("|".join(wiki.acceptable_file_extensions())))
