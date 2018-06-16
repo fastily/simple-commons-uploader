@@ -73,6 +73,9 @@ tpl = """=={{{{int:filedesc}}}}==
 
 
 for d in args.dirs:
+    if not os.path.isdir(d):
+        continue
+        
     i = 1
     dir_base = os.path.basename(os.path.normpath(d))
 

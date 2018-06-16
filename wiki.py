@@ -82,21 +82,25 @@ class Wiki:
 
             err_count = 0
             while True:
-                ColorLog.fyi("Uploading chunk [{} of {}] of '{}'".format(chunk_count + 1, total_chunks, path), self)
-                response = self.client.post(self.endpoint, params={"action": "upload"}, data=data, files={'chunk':(os.path.basename(path), buffer, "multipart/form-data")}, timeout=300)
+                if err_count > 5:
+                    ColorLog.error("Encountered {} errors, aborting".format(err_count), self)
+                    break      
 
+                ColorLog.fyi("Uploading chunk [{} of {}] of '{}'".format(chunk_count + 1, total_chunks, path), self)
+                response = self.client.post(self.endpoint, params={"action": "upload"}, data=data, files={'chunk':(os.path.basename(path), buffer, "multipart/form-data")}, timeout=420)
+
+                if not response:
+                    err_count += 1
+                    ColorLog.error("Did not get a response back from the server, retrying...", self)
+                    continue
+                
+                response = response.json()
                 if "error" in response:
                     ColorLog.error(response['error']['info'], self)
                     err_count+=1
-                    if err_count < 5:
-                        ColorLog.warn("Chunk upload failed, retrying - " + str(err_count), self)
-                        continue
-                    else:
-                        ColorLog.error("Encountered {} errors, aborting".format(err_count), self)
-                        return False
-                else:
-                    data['filekey'] = response.json()["upload"]["filekey"]
+                    continue
 
+                data['filekey'] = response["upload"]["filekey"]
                 chunk_count+=1
                 data['offset'] = str(CHUNKSIZE * chunk_count)
 
@@ -104,10 +108,13 @@ class Wiki:
                 if not buffer:
                     break
 
+        if "filekey" not in data:
+            return False
+
         ColorLog.info("Unstashing '{}' as '{}'".format(data['filekey'], title), self)
         pl = {"filename": title, "text": desc, "comment": summary, "filekey": data['filekey'], "ignorewarnings": "1", "token": self.csrf_token}
         pl.update(DEFAULT_PARAMS)
-        response = self.client.post(self.endpoint, params={"action": "upload"}, data=pl, timeout=180).json()
+        response = self.client.post(self.endpoint, params={"action": "upload"}, data=pl, timeout=420).json()
         
         if 'error' in response:
             ColorLog.error(response['error']['info'], self)
