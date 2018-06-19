@@ -26,7 +26,6 @@ if args.wgen:
     Wgen.setup(out_file=MTC_FILE, allow_continue=False)
     exit()
 
-
 wiki = Wiki("commons.wikimedia.org")
 if args.i:
     print("Please login to continue.")
@@ -75,13 +74,13 @@ tpl = """=={{{{int:filedesc}}}}==
 for d in args.dirs:
     if not os.path.isdir(d):
         continue
-        
+
     i = 1
     dir_base = os.path.basename(os.path.normpath(d))
 
     fails = []
     for f in [ fn for fn in listdir_fullpath(d) if pattern.match(fn) ]:
-        title = "{} {} {}{}".format(dir_base, i, str(date.today()), os.path.splitext(f)[1])
+        title = "{} {} {}{}".format(dir_base, i, str(date.today()), os.path.splitext(f)[1].lower())
         desc = tpl.format(dir_base, f"{datetime.fromtimestamp(os.path.getmtime(f)):%Y-%m-%d %H:%M:%S}", dir_base, wiki.username)
         if not wiki.upload(f, title, desc, ""):
             fails.append(f)

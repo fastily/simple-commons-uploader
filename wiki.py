@@ -87,11 +87,11 @@ class Wiki:
                     break      
 
                 ColorLog.fyi("Uploading chunk [{} of {}] of '{}'".format(chunk_count + 1, total_chunks, path), self)
-                response = self.client.post(self.endpoint, params={"action": "upload"}, data=data, files={'chunk':(os.path.basename(path), buffer, "multipart/form-data")}, timeout=420)
 
+                response = self.client.post(self.endpoint, params={"action": "upload"}, data=data, files={'chunk':(os.path.basename(path), buffer, "multipart/form-data")}, timeout=420)
                 if not response:
-                    err_count += 1
                     ColorLog.error("Did not get a response back from the server, retrying...", self)
+                    err_count += 1
                     continue
                 
                 response = response.json()
@@ -121,7 +121,6 @@ class Wiki:
             return False
 
         return response['upload']['result'] == "Success"
-
 
 
 class ColorLog:
