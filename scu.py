@@ -8,7 +8,7 @@ from datetime import date, datetime
 from wiki import Wiki, ColorLog
 from wgen import Wgen
 
-MTC_FILE=os.path.join(os.path.expanduser("~"), ".mtc.px.txt")
+MTC_FILE=os.path.join(os.path.expanduser("~"), ".scu.px.txt")
 
 def listdir_fullpath(d):
     return [os.path.join(d, f) for f in os.listdir(d)]
