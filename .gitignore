@@ -12,3 +12,6 @@ Thumbs.db
 
 # Python
 __pycache__
+build
+dist
+*.egg-info
