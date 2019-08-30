@@ -5,8 +5,13 @@ import getpass
 
 from datetime import date, datetime
 
-from wiki import Wiki, ColorLog
-from wgen import Wgen
+# workaround for ModuleNotFound errors
+if __name__ == '__main__':
+    from wiki import Wiki, ColorLog
+    from wgen import Wgen
+else:
+    from simple_commons_uploader.wiki import Wiki, ColorLog
+    from simple_commons_uploader.wgen import Wgen
 
 
 def main():
