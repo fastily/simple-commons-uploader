@@ -25,7 +25,7 @@ Uploaded files will be named based on local folder name.  For example, if your f
 
 ## Usage
 ```
-usage: scu.py [-h] [--user USER] [--pw PW] [-i] [--wgen] [folders [folders ...]]
+usage: scu [-h] [--user USER] [--pw PW] [-i] [--wgen] [folders [folders ...]]
 
 Simple Commons Uploader
 
@@ -38,4 +38,9 @@ optional arguments:
   --pw PW      password to use
   -i           force interactive login
   --wgen       run wgen password manager
+```
+
+## Download
+```bash
+pip install simple-commons-uploader
 ```
