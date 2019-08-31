@@ -7,21 +7,10 @@ The Simple Commons Uploader makes it easy to batch upload your self-made photos 
 
 ⚠️ You must have an account on Wikimedia Commons to use this script.  You can create an account by [going here](https://commons.wikimedia.org/wiki/Special:CreateAccount).
 
-
-## Authentication/Login
-The Simple Commons Uploader works with your normal password and [BotPasswords](https://commons.wikimedia.org/wiki/Special:BotPasswords).  
-
-There are three ways to authenticate:
-1. Interactively typing your credentials into the terminal, by running the program with the `-i` flag.
-2. Specifying your credentials via the `--user` and `--pw` flags.
-3. Using the Wgen setup utility by initially running the program with the `--wgen` flag.  This method has the advantage of saving your credentials so you won't have to type them in the next time you use the program.
-
-
-## Using
-The Simple Commons Uploader only uploads files in [these file formats](https://commons.wikimedia.org/wiki/Commons:File_types).  Any other file types will be skippied.
-
-Uploaded files will be named based on local folder name.  For example, if your folder is called `Fancy pigeons`, contains jpgs of fancy pigeons, and today's date is 2018-01-01, then the resulting files will be named `File:Fancy pigeons 1 2018-01-01.jpg`, `File:Fancy pigeons 2 2018-01-01.jpg`, `File:Fancy pigeons 3 2018-01-01.jpg`, etc.
-
+## Download
+```bash
+pip install simple-commons-uploader
+```
 
 ## Usage
 ```
@@ -40,7 +29,16 @@ optional arguments:
   --wgen       run wgen password manager
 ```
 
-## Download
-```bash
-pip install simple-commons-uploader
-```
+## Authentication/Login
+The Simple Commons Uploader works with your normal password and [BotPasswords](https://commons.wikimedia.org/wiki/Special:BotPasswords).  
+
+There are three ways to authenticate:
+1. Interactively typing your credentials into the terminal, by running the program with the `-i` flag.
+2. Specifying your credentials via the `--user` and `--pw` flags.
+3. Using the Wgen setup utility by initially running the program with the `--wgen` flag.  This method has the advantage of saving your credentials so you won't have to type them in the next time you use the program.
+
+
+## Behavior Details
+The Simple Commons Uploader only uploads files in [these file formats](https://commons.wikimedia.org/wiki/Commons:File_types).  Any other file types will be skippied.
+
+Uploaded files will be named based on local folder name.  For example, if your folder is called `Fancy pigeons`, contains jpgs of fancy pigeons, and today's date is 2018-01-01, then the resulting files will be named `File:Fancy pigeons 1 2018-01-01.jpg`, `File:Fancy pigeons 2 2018-01-01.jpg`, `File:Fancy pigeons 3 2018-01-01.jpg`, etc.
