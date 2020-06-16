@@ -1,9 +1,10 @@
 import argparse
-import os
-import re
 import getpass
-
+import re
 from datetime import date, datetime
+from pathlib import Path
+
+from PIL import ExifTags, Image
 
 # workaround for ModuleNotFound errors
 if __name__ == '__main__':
@@ -15,10 +16,7 @@ else:
 
 
 def main():
-    MTC_FILE = os.path.join(os.path.expanduser("~"), ".scu.px.txt")
-
-    def listdir_fullpath(d):
-        return [os.path.join(d, f) for f in os.listdir(d)]
+    MTC_FILE = Path.home() / ".scu.px.txt"
 
     cli_parser = argparse.ArgumentParser(description="Simple Commons Uploader")
     cli_parser.add_argument('dirs', metavar='folders', type=str, nargs='*', help='folders with files to upload')
@@ -29,57 +27,63 @@ def main():
     args = cli_parser.parse_args()
 
     if args.wgen:
-        Wgen.setup(out_file=MTC_FILE, allow_continue=False)
-        exit()
+        Wgen.setup(MTC_FILE, False)
+        return
 
     wiki = Wiki("commons.wikimedia.org")
     if args.i:
-        print("Please login to continue.")
-        u = input("Username: ")
-        p = getpass.getpass()
-        wiki.login(u, p)
+        wiki.login(input("Please login to continue.\nUsername: "), getpass.getpass())
     elif args.user:
         if not args.pw:
             ColorLog.error("You didn't specify a password, --pw")
-            exit()
+            return
 
         wiki.login(args.user, args.pw)
-    elif os.path.isfile(MTC_FILE):
-        pxd = Wgen.load_px(px_file=MTC_FILE)
+    elif MTC_FILE.is_file():
+        pxd = Wgen.load_px(MTC_FILE)
         if not pxd:
-            ColorLog.error("Please run with --wgen option or remove {} from your home directory".format(MTC_FILE))
-
-        k, v = pxd.popitem()
-        wiki.login(k, v)
+            ColorLog.error(f"Please run with --wgen option or remove {MTC_FILE} from your home directory")
+        wiki.login(*pxd.popitem())
     else:
         cli_parser.print_help()
-        exit()
+        return
 
     if not args.dirs:
-        ColorLog.warn(
-            "You didn't specify and directories to upload!  Goodbye.")
-        exit()
+        ColorLog.warn("You didn't specify and directories to upload!  Goodbye.")
+        return
 
-    pattern = re.compile(
-        "(?i).+\\.({})".format("|".join(wiki.acceptable_file_extensions())))
+    ext_list = ["." + e for e in wiki.acceptable_file_extensions()]
 
     tpl = "=={{{{int:filedesc}}}}==\n{{{{Information\n|description={}\n|date={}\n|source={{{{Own}}}}\n|author=~~~\n}}}}\n\n" + \
         "=={{{{int:license-header}}}}==\n{{{{Self|Cc-by-sa-4.0}}}}\n\n[[Category:{}]]\n[[Category:Files by {}]]"
 
     for d in args.dirs:
-        if not os.path.isdir(d):
+        base_dir = Path(d)
+        if not base_dir.is_dir():
             continue
 
         i = 1
-        dir_base = os.path.basename(os.path.normpath(d))
-
         fails = []
-        for f in [fn for fn in listdir_fullpath(d) if pattern.match(fn)]:
-            title = "{} {} {}{}".format(dir_base, i, str(
-                date.today()), os.path.splitext(f)[1].lower())
-            desc = tpl.format(
-                dir_base, f"{datetime.fromtimestamp(os.path.getmtime(f)):%Y-%m-%d %H:%M:%S}", dir_base, wiki.username)
-            if not wiki.upload(f, title, desc, ""):
+        for f in base_dir.iterdir():
+            if not f.is_file() or not f.suffix.lower() in ext_list:
+                continue
+
+            timestamp = None
+            try:
+                with Image.open(f) as img:
+                    exif = {ExifTags.TAGS[k]: v for k, v in img._getexif().items() if k in ExifTags.TAGS}
+                if "DateTimeOriginal" in exif:
+                    dto = exif["DateTimeOriginal"]
+
+                    if re.match(r"\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}", dto):
+                        d, t = dto.split()
+                        timestamp = d.replace(":", "-") + " " + t
+
+            except Exception as e:
+                ColorLog.warn(f"Could not parse EXIF for {f}: {e}")
+
+            desc = tpl.format(base_dir.name, timestamp or f"{datetime.fromtimestamp(f.stat().st_mtime):%Y-%m-%d %H:%M:%S}", base_dir.name, wiki.username)
+            if not wiki.upload(str(f), f"{base_dir.name} {i} {date.today()}{f.suffix.lower()}", desc, ""):
                 fails.append(f)
             i += 1
 
@@ -90,6 +94,6 @@ def main():
     else:
         print("Complete, with no failures")
 
+
 if __name__ == '__main__':
     main()
-    
