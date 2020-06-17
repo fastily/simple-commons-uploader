@@ -5,7 +5,7 @@
 
 The Simple Commons Uploader makes it easy to batch upload your self-made photos and videos to the [Wikimedia Commons](https://commons.wikimedia.org/wiki/Main_Page).
 
-⚠️ You must have an account on Wikimedia Commons to use this script.  You can create an account by [going here](https://commons.wikimedia.org/wiki/Special:CreateAccount).
+⚠️ You must have an account on Wikimedia Commons to use this script.  Create an account by [going here](https://commons.wikimedia.org/wiki/Special:CreateAccount).
 
 ## Download
 ```bash

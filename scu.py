@@ -3,16 +3,12 @@ import getpass
 import re
 from datetime import date, datetime
 from pathlib import Path
+from textwrap import dedent
 
 from PIL import ExifTags, Image
 
-# workaround for ModuleNotFound errors
-if __name__ == '__main__':
-    from wiki import Wiki, ColorLog
-    from wgen import Wgen
-else:
-    from simple_commons_uploader.wiki import Wiki, ColorLog
-    from simple_commons_uploader.wgen import Wgen
+from wiki import Wiki, ColorLog
+from wgen import Wgen
 
 
 def main():
@@ -37,7 +33,6 @@ def main():
         if not args.pw:
             ColorLog.error("You didn't specify a password, --pw")
             return
-
         wiki.login(args.user, args.pw)
     elif MTC_FILE.is_file():
         pxd = Wgen.load_px(MTC_FILE)
@@ -52,10 +47,7 @@ def main():
         ColorLog.warn("You didn't specify and directories to upload!  Goodbye.")
         return
 
-    ext_list = ["." + e for e in wiki.acceptable_file_extensions()]
-
-    tpl = "=={{{{int:filedesc}}}}==\n{{{{Information\n|description={}\n|date={}\n|source={{{{Own}}}}\n|author=~~~\n}}}}\n\n" + \
-        "=={{{{int:license-header}}}}==\n{{{{Self|Cc-by-sa-4.0}}}}\n\n[[Category:{}]]\n[[Category:Files by {}]]"
+    ext_list = {"." + e for e in wiki.acceptable_file_extensions()}
 
     for d in args.dirs:
         base_dir = Path(d)
@@ -65,25 +57,40 @@ def main():
         i = 1
         fails = []
         for f in base_dir.iterdir():
-            if not f.is_file() or not f.suffix.lower() in ext_list:
+            ext = f.suffix.lower()
+            if not f.is_file() or not ext in ext_list:
                 continue
 
             timestamp = None
-            try:
-                with Image.open(f) as img:
-                    exif = {ExifTags.TAGS[k]: v for k, v in img._getexif().items() if k in ExifTags.TAGS}
-                if "DateTimeOriginal" in exif:
-                    dto = exif["DateTimeOriginal"]
+            if ext in (".jpg", ".jpeg"):
+                try:
+                    with Image.open(f) as img:
+                        exif = {ExifTags.TAGS[k]: v for k, v in img._getexif().items() if k in ExifTags.TAGS}
+                    if "DateTimeOriginal" in exif:
+                        dto = exif["DateTimeOriginal"]
 
-                    if re.match(r"\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}", dto):
-                        d, t = dto.split()
-                        timestamp = d.replace(":", "-") + " " + t
+                        if re.match(r"\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}", dto):
+                            d, t = dto.split()
+                            timestamp = d.replace(":", "-") + " " + t
+                except Exception as e:
+                    ColorLog.warn(f"Could not parse EXIF for {f}: {e}")
 
-            except Exception as e:
-                ColorLog.warn(f"Could not parse EXIF for {f}: {e}")
+            desc = f"""\
+            =={{{{int:filedesc}}}}==
+            {{{{Information
+            |description={base_dir.name}
+            |date={timestamp or f'{datetime.fromtimestamp(f.stat().st_mtime):%Y-%m-%d %H:%M:%S}'}
+            |source={{{{Own}}}}
+            |author=~~~
+            }}}}
 
-            desc = tpl.format(base_dir.name, timestamp or f"{datetime.fromtimestamp(f.stat().st_mtime):%Y-%m-%d %H:%M:%S}", base_dir.name, wiki.username)
-            if not wiki.upload(str(f), f"{base_dir.name} {i} {date.today()}{f.suffix.lower()}", desc, ""):
+            =={{{{int:license-header}}}}==
+            {{{{Self|Cc-by-sa-4.0}}}}
+            
+            [[Category:{base_dir.name}]]
+            [[Category:Files by {wiki.username}]]"""
+
+            if not wiki.upload(str(f), f"{base_dir.name} {i} {date.today()}{ext}", dedent(desc), ""):
                 fails.append(f)
             i += 1
 
