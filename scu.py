@@ -79,7 +79,7 @@ def main():
             =={{{{int:filedesc}}}}==
             {{{{Information
             |description={base_dir.name}
-            |date={timestamp or f'{datetime.fromtimestamp(f.stat().st_mtime):%Y-%m-%d %H:%M:%S}'}
+            |date={timestamp or datetime.fromtimestamp(f.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S')}
             |source={{{{Own}}}}
             |author=~~~
             }}}}
