@@ -10,14 +10,14 @@ CHUNKSIZE = 1024 * 1024 * 4
 
 class Wiki:
     def __init__(self, domain, username=None, password=None):
-        self.endpoint = "https://{}/w/api.php".format(domain)
+        self.endpoint = f"https://{domain}/w/api.php"
         self.domain = domain
         self.client = requests.Session()
         self.username = username
 
         self.csrf_token = None
 
-        if username != None and password != None:
+        if username and password:
             self.login(username, password)
 
     def __make_params(self, action, pl={}):
@@ -80,10 +80,10 @@ class Wiki:
             err_count = 0
             while True:
                 if err_count > 5:
-                    ColorLog.error("Encountered {} errors, aborting".format(err_count), self)
+                    ColorLog.error(f"Encountered {err_count} errors, aborting", self)
                     break
 
-                ColorLog.fyi("Uploading chunk [{} of {}] of '{}'".format(chunk_count + 1, total_chunks, path), self)
+                ColorLog.fyi(f"Uploading chunk [{chunk_count + 1} of {total_chunks}] of '{path}'", self)
 
                 response = self.client.post(self.endpoint, params={"action": "upload"}, data=data, files={
                                             'chunk': (os.path.basename(path), buffer, "multipart/form-data")}, timeout=420)
@@ -109,7 +109,7 @@ class Wiki:
         if "filekey" not in data:
             return False
 
-        ColorLog.info("Unstashing '{}' as '{}'".format(data['filekey'], title), self)
+        ColorLog.info(f"Unstashing {data['filekey']} as {title}", self)
         pl = {"filename": title, "text": desc, "comment": summary, "filekey": data['filekey'], "ignorewarnings": "1", "token": self.csrf_token}
         pl.update(DEFAULT_PARAMS)
         response = self.client.post(self.endpoint, params={"action": "upload"}, data=pl, timeout=420).json()
@@ -131,8 +131,8 @@ class ColorLog:
             :param msg: the mesage to print
             :param wiki: the Wiki to generate a prefix with (optional)
         """
-        prefix = "[{} @ {}]: ".format(wiki.username if wiki.username else "<Anonymous>", wiki.domain) if wiki else ""
-        print("{}\n{}: \033[3{}m{}{}\033[0m".format(f"{datetime.datetime.now():%b %d, %Y %I:%M:%S %p}", level, color_code, prefix, msg))
+        prefix = f"[{wiki.username or '<Anonymous>'} @ {wiki.domain}]: " if wiki else ""
+        print(f"{datetime.datetime.now():%b %d, %Y %I:%M:%S %p}\n{level}: \033[3{color_code}m{prefix}{msg}\033[0m")
 
     @staticmethod
     def warn(msg, wiki=None):
