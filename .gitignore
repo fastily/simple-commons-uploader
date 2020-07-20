@@ -17,4 +17,4 @@ dist
 *.egg-info
 
 # virtualenv
-scu_env
+venv_scu
