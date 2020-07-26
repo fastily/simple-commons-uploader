@@ -7,8 +7,8 @@ from textwrap import dedent
 
 from PIL import ExifTags, Image
 
-from wiki import Wiki, ColorLog
-from wgen import Wgen
+from scu.wiki import Wiki, ColorLog
+from scu.wgen import Wgen
 
 
 def main():

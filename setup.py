@@ -5,18 +5,19 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="simple-commons-uploader",
-    version="0.3.0",
+    version="0.2.1",
     author="Fastily",
     author_email="fastily@users.noreply.github.com",
     description="Batch Wikimedia Commons Uploader",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/fastily/simple-commons-uploader",
+    include_package_data=True,
     packages=setuptools.find_packages(),
     install_requires=['Pillow', 'requests'],
     entry_points={
         'console_scripts': [
-            'scu = scu:main'
+            'scu = scu.__main__:main'
         ]
     },
     classifiers=[
@@ -28,4 +29,5 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
+    python_requires='>=3.6',
 )
