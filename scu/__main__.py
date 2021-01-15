@@ -19,6 +19,10 @@ MTC_FILE = Path.home() / ".scu.px.txt"
 
 
 def _main():
+    for lg in (logging.getLogger("pwiki"), log):
+        lg.addHandler(RichHandler(rich_tracebacks=True))
+        lg.setLevel("INFO")
+
     cli_parser = argparse.ArgumentParser(description="Simple Commons Uploader")
     cli_parser.add_argument('--user', type=str, help="username to use")
     cli_parser.add_argument('--pw', type=str, help="password to use")
@@ -98,8 +102,4 @@ def _main():
 
 
 if __name__ == '__main__':
-    for lg in (logging.getLogger("pwiki"), log):
-        lg.addHandler(RichHandler(rich_tracebacks=True))
-        lg.setLevel("INFO")
-
     _main()

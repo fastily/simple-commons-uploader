@@ -14,10 +14,10 @@ setuptools.setup(
     url="https://github.com/fastily/simple-commons-uploader",
     include_package_data=True,
     packages=setuptools.find_packages(),
-    install_requires=['Pillow', 'requests', 'rich'],
+    install_requires=['Pillow', 'pwiki', 'requests', 'rich'],
     entry_points={
         'console_scripts': [
-            'scu = scu.__main__:main'
+            'scu = scu.__main__:_main'
         ]
     },
     classifiers=[
