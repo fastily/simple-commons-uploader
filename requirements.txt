@@ -1,4 +1,4 @@
 Pillow==8.1.0
 pwiki==0.0.1
 requests==2.25.1
-rich==9.6.2
+rich==9.8.2
