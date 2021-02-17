@@ -74,7 +74,7 @@ def _main():
                             d, t = dto.split()
                             timestamp = f"{d.replace(':', '-')} {t}"
                 except Exception as e:
-                    log.warn("Could not parse EXIF for %s", f, exc_info=True)
+                    log.warning("Could not parse EXIF for %s", f, exc_info=True)
 
             desc = f"""\
             =={{{{int:filedesc}}}}==
@@ -96,7 +96,7 @@ def _main():
             i += 1
 
     if fails:
-        log.warn("Failed to upload %d files: %s", len(fails), fails)
+        log.warning("Failed to upload %d files: %s", len(fails), fails)
     else:
         log.info("Finished with no failures")
 
