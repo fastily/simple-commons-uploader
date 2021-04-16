@@ -12,8 +12,11 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/fastily/simple-commons-uploader",
+    project_urls={
+        "Bug Tracker": "https://github.com/fastily/simple-commons-uploader/issues",
+    },
     include_package_data=True,
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(include=["scu"]),
     install_requires=['Pillow', 'pwiki', 'requests', 'rich'],
     entry_points={
         'console_scripts': [

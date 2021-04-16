@@ -15,7 +15,7 @@ from pwiki.wiki import Wiki
 
 log = logging.getLogger(__name__)
 
-MTC_FILE = Path.home() / ".scu.px.txt"
+_MTC_FILE = Path.home() / ".scu.px.txt"
 
 
 def _main():
@@ -32,7 +32,7 @@ def _main():
     args = cli_parser.parse_args()
 
     if args.wgen:
-        wgen.setup_px(MTC_FILE, False)
+        wgen.setup_px(_MTC_FILE, False)
         return
 
     wiki = Wiki("commons.wikimedia.org")
@@ -43,8 +43,8 @@ def _main():
             log.critical("No password specified, please pass the --pw flag with a pasword.")
             return
         wiki.login(args.user, args.pw)
-    elif MTC_FILE.is_file():
-        wiki.login(*wgen.load_px(MTC_FILE).popitem())
+    elif _MTC_FILE.is_file():
+        wiki.login(*wgen.load_px(_MTC_FILE).popitem())
     else:
         cli_parser.print_help()
         return
@@ -76,7 +76,7 @@ def _main():
                 except Exception as e:
                     log.warning("Could not parse EXIF for %s", f, exc_info=True)
 
-            desc = f"""\
+            desc = dedent(f"""\
             =={{{{int:filedesc}}}}==
             {{{{Information
             |description={base_dir.name}
@@ -89,9 +89,9 @@ def _main():
             {{{{Self|Cc-by-sa-4.0}}}}
             
             [[Category:{base_dir.name}]]
-            [[Category:Files by {wiki.username}]]"""
+            [[Category:Files by {wiki.username}]]""")
 
-            if not wiki.upload(f, f"{base_dir.name} {i} {date.today()}{ext}", dedent(desc)):
+            if not wiki.upload(f, f"{base_dir.name} {i} {date.today()}{ext}", desc):
                 fails.append(f)
             i += 1
 
