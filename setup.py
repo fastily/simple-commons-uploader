@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="simple-commons-uploader",
-    version="0.3.1",
+    version="0.3.2",
     author="Fastily",
     author_email="fastily@users.noreply.github.com",
     description="Batch Wikimedia Commons Uploader",
@@ -17,7 +17,7 @@ setuptools.setup(
     },
     include_package_data=True,
     packages=setuptools.find_packages(include=["scu"]),
-    install_requires=['Pillow', 'pwiki', 'requests', 'rich'],
+    install_requires=['Pillow', 'pwiki', 'rich'],
     entry_points={
         'console_scripts': [
             'scu = scu.__main__:_main'
