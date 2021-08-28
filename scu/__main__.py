@@ -76,6 +76,7 @@ def _main() -> None:
             if not f.is_file() or (ext := f.suffix.lower()) not in ext_list:
                 continue
 
+            # date
             timestamp = None
             if ext in (".jpg", ".jpeg"):
                 try:
@@ -86,10 +87,16 @@ def _main() -> None:
                 except Exception as e:
                     log.warning("Could not parse EXIF for %s", f, exc_info=True)
 
+            # base_desc, cat
+            if "_" in base_dir.name:
+                b, cat = [s.strip() for s in base_dir.name.split("_", 1)]
+            else:
+                b = cat = base_dir.name
+
             desc = dedent(f"""\
             =={{{{int:filedesc}}}}==
             {{{{Information
-            |description={base_dir.name}
+            |description={b}
             |date={timestamp or datetime.fromtimestamp(f.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S')}
             |source={{{{Own}}}}
             |author=~~~
@@ -98,10 +105,10 @@ def _main() -> None:
             =={{{{int:license-header}}}}==
             {{{{Self|Cc-by-sa-4.0}}}}
             
-            [[Category:{base_dir.name}]]
+            [[Category:{cat}]]
             [[Category:Files by {wiki.username}]]""")
 
-            if not wiki.upload(f, f"{base_dir.name} {i} {date.today()}{ext}", desc):
+            if not wiki.upload(f, f"{b} {i} {date.today()}{ext}", desc):
                 fails.append(f)
             i += 1
 
