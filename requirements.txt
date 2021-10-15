@@ -1,2 +1,2 @@
-pwiki==1.1.0
+pwiki==1.1.1
 -r requirements-dev.txt
