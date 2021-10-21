@@ -42,3 +42,5 @@ There are three ways to authenticate:
 The Simple Commons Uploader only uploads files in [these file formats](https://commons.wikimedia.org/wiki/Commons:File_types).  Any other file types will be skippied.
 
 Uploaded files will be named based on local folder name.  For example, if your folder is called `Fancy pigeons`, contains jpgs of fancy pigeons, and today's date is 2018-01-01, then the resulting files will be named `File:Fancy pigeons 1 2018-01-01.jpg`, `File:Fancy pigeons 2 2018-01-01.jpg`, `File:Fancy pigeons 3 2018-01-01.jpg`, etc.
+
+Uploaded files will be categorized using the same name as the containing folder on your computer.  To use a different category, add an `_` character to the end of the folder name, followed by the category (without the `Category` prefix) you would like to add.  For example, a folder with name `Fancy pigeons _ Gray birds` will cause `scu` to upload the files with a base name of `Fancy pigeons` and categorize them in `Category:Gray birds`.
