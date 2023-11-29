@@ -14,29 +14,22 @@ pip install simple-commons-uploader
 
 ## Usage
 ```
-usage: scu [-h] [--user USER] [--pw PW] [-i] [--wgen] [folders [folders ...]]
+usage: __main__.py [-h] [-u username] [folders ...]
 
 Simple Commons Uploader
 
 positional arguments:
   folders      folders with files to upload
 
-optional arguments:
+options:
   -h, --help   show this help message and exit
-  --user USER  username to use
-  --pw PW      password to use
-  -i           force interactive login
-  --wgen       run wgen password manager
+  -u username  username to use
 ```
 
 ## Authentication/Login
 The Simple Commons Uploader works with your normal password and [BotPasswords](https://commons.wikimedia.org/wiki/Special:BotPasswords).  
 
-There are three ways to authenticate:
-1. Interactively typing your credentials into the terminal, by running the program with the `-i` flag.
-2. Specifying your credentials via the `--user` and `--pw` flags.
-3. Using the Wgen setup utility by initially running the program with the `--wgen` flag.  This method has the advantage of saving your credentials so you won't have to type them in the next time you use the program.
-
+👉 Password is set via env variable `<USERNAME>_PW`, such that `<USERNAME>` is the username of the bot in all caps.
 
 ## Behavior Details
 The Simple Commons Uploader only uploads files in [these file formats](https://commons.wikimedia.org/wiki/Commons:File_types).  Any other file types will be skippied.
