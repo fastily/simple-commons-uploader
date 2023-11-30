@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="simple-commons-uploader",
-    version="0.3.3",
+    version="0.4.0",
     author="Fastily",
     author_email="fastily@users.noreply.github.com",
     description="Batch Wikimedia Commons Uploader",
